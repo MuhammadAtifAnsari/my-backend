@@ -7,7 +7,11 @@ app.get("/user", (req, res) => {
         message: "users fetched!",
     })
     console.log("users fetched");
-})
+});
+
+app.get("/", (req, res) => {
+    res.send("Backend is running successfully!");
+});
 
 
 
