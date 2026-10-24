@@ -2,6 +2,17 @@ import mongoose from "mongoose";
 import 'dotenv/config';
 import path from 'path';
 import dotenv from "dotenv";
+import dns from "dns"; 
+
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+
+// 3. IPv4 resolution ko priority dene ke liye default result order set kiya
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
+
+
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') }); 
  
