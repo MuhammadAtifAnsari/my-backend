@@ -16,15 +16,27 @@ const checkIn = async (req, res) => {
     // Check if already checked in today
     const existingAttendance = await Attendance.findOne({ employee: employee._id, date: today });
     if (existingAttendance) {
-      return res.status(409).json({ message: 'Already checked in today' }); // Brief rule: 409
+      return res.status(409).json({ message: 'Already checked in today' });
     }
 
     const now = new Date();
-    const settings = await CompanySetting.findOne() || { officeStart: '09:00', graceTimeMinutes: 15 };
+    
+    // Safe fallback if CompanySetting fails or doesn't exist yet
+    let officeStart = '09:00';
+    let graceTimeMinutes = 15;
+    try {
+      const settings = await CompanySetting.findOne();
+      if (settings) {
+        officeStart = settings.officeStart || officeStart;
+        graceTimeMinutes = settings.graceTimeMinutes ?? graceTimeMinutes;
+      }
+    } catch (e) {
+      // Use defaults if collection doesn't exist
+    }
 
-    // Calculate if late (e.g. 09:00 + 15 min grace = 09:15)
-    const [officeHours, officeMins] = settings.officeStart.split(':').map(Number);
-    const limitMinutes = officeHours * 60 + officeMins + settings.graceTimeMinutes;
+    // Calculate if late
+    const [officeHours, officeMins] = officeStart.split(':').map(Number);
+    const limitMinutes = officeHours * 60 + officeMins + graceTimeMinutes;
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     let status = 'Present';
@@ -73,8 +85,15 @@ const checkOut = async (req, res) => {
     const workHours = diffMs / (1000 * 60 * 60);
     attendance.workHours = parseFloat(workHours.toFixed(2));
 
-    const settings = await CompanySetting.findOne() || { halfDayMinHours: 5 };
-    if (attendance.workHours < settings.halfDayMinHours) {
+    let halfDayMinHours = 5;
+    try {
+      const settings = await CompanySetting.findOne();
+      if (settings && settings.halfDayMinHours) {
+        halfDayMinHours = settings.halfDayMinHours;
+      }
+    } catch (e) {}
+
+    if (attendance.workHours < halfDayMinHours) {
       attendance.status = 'Half-Day';
     }
 
@@ -85,7 +104,7 @@ const checkOut = async (req, res) => {
   }
 };
 
-// @desc    Get Attendance records (Admin/HR view all, Employee view own)
+// @desc    Get Attendance records
 // @route   GET /api/attendance
 const getAttendance = async (req, res) => {
   try {
@@ -107,5 +126,4 @@ const getAttendance = async (req, res) => {
   }
 };
 
-// Named Export for ES6
 export { checkIn, checkOut, getAttendance };

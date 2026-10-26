@@ -6,4 +6,6 @@ const holidaySchema = new mongoose.Schema({
   description: { type: String }
 }, { timestamps: true });
 
-export default mongoose.model('Holiday', holidaySchema);
+const Holiday = mongoose.model('Holiday', holidaySchema);
+
+export default Holiday;

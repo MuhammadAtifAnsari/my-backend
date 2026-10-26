@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/UserModel.js';
 
-// Protect routes (Verify JWT)
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   let token;
 
   if (
@@ -14,20 +13,18 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await User.findById(decoded.id).select('-password');
-      next();
+      return next();
     } catch (error) {
-      console.error(error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
-// Role-based access control guard
-const authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
@@ -38,5 +35,5 @@ const authorize = (...roles) => {
   };
 };
 
-// module.exports = { protect, authorize };
-export { protect, authorize };
+// Default export taaki default import wali files bhi crash na hon
+export default protect;

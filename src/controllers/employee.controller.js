@@ -80,8 +80,8 @@ const getEmployees = async (req, res) => {
     let filteredEmployees = employees;
     if (search) {
       filteredEmployees = employees.filter(emp => 
-        emp.user.name.toLowerCase().includes(search.toLowerCase()) ||
-        emp.employeeCode.toLowerCase().includes(search.toLowerCase())
+        emp.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
+        emp.employeeCode?.toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -152,10 +152,34 @@ const updateEmployee = async (req, res) => {
   }
 };
 
+// @desc    Delete employee and associated user account
+// @route   DELETE /api/employees/:id
+const deleteEmployee = async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // Delete associated User login account if exists
+    if (employee.user) {
+      await User.findByIdAndDelete(employee.user);
+    }
+
+    // Delete Employee profile
+    await Employee.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Employee and user account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 // Named Export for ES6
 export {
   registerEmployee,
   getEmployees,
   getEmployeeById,
   updateEmployee,
+  deleteEmployee,
 };

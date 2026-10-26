@@ -6,4 +6,6 @@ const leaveTypeSchema = new mongoose.Schema({
   isPaid: { type: Boolean, default: true }
 }, { timestamps: true });
 
-export default mongoose.model('LeaveType', leaveTypeSchema);
+const LeaveType = mongoose.model('LeaveType', leaveTypeSchema);
+
+export default LeaveType;

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
     enum: ['Admin', 'HR', 'Employee'], 
     required: true 
   },
-  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', default: null },
+  department: { type: String, default: 'Engineering' },
   isTemporaryPassword: { type: Boolean, default: false },
   employeeId: { type: String, unique: true, sparse: true }
 }, { timestamps: true });
@@ -30,4 +30,6 @@ userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+export default User;

@@ -4,6 +4,7 @@ import {
   getEmployees,
   getEmployeeById,
   updateEmployee,
+  deleteEmployee, // 1. Import deleteEmployee controller
 } from '../controllers/employee.controller.js';
 import { protect, authorize } from '../middleware/auth.middleware.js';
 
@@ -15,6 +16,7 @@ router.route('/')
 
 router.route('/:id')
   .get(protect, getEmployeeById)
-  .put(protect, updateEmployee);
+  .put(protect, authorize('Admin', 'HR'), updateEmployee)
+  .delete(protect, authorize('Admin', 'HR'), deleteEmployee); // 2. Added DELETE route here
 
 export default router;

@@ -1,5 +1,15 @@
 import LeaveRequest from '../models/LeaveRequest.js';
 import Employee from '../models/Employee.js';
+import LeaveType from '../models/LeaveType.js';
+
+export const getLeaveTypes = async (req, res) => {
+  try {
+    const types = await LeaveType.find();
+    res.json(types);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
 
 // @desc    Apply for leave (Employee)
 // @route   POST /api/leaves
